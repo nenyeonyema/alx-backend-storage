@@ -1,0 +1,4 @@
+// 1-use_or_create_database
+use my_db; // Switch to the database "my_db"
+
+print("switched to db " + db.getName());
