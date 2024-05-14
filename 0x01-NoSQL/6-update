@@ -3,5 +3,6 @@ var result = db.school.updateMany(
     { name: "Holberton school" },
     { $set: { address: "972 Mission street" } }
 );
-
-printjson(result);
+print("WriteResult({ \"nMatched\" : " + result.matchedCount + 
+      ", \"nUpserted\" : " + (result.upsertedId ? 1 : 0) + 
+      ", \"nModified\" : " + result.modifiedCount + " })");
