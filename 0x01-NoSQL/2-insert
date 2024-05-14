@@ -1,0 +1,7 @@
+// 2-insert
+var result = db.school.insertOne({ name: "Holberton school" });
+if (version().startsWith("3.")) {
+    print("WriteResult({ \"nInserted\" : " + result.nInserted + " })");
+} else {
+    print("WriteResult({ \"nInserted\" : " + (result.acknowledged ? 1 : 0) + " })");
+}
