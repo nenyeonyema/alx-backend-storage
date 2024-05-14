@@ -1,0 +1,5 @@
+// 7-delete
+var result = db.school.deleteMany({ name: "Holberton school" });
+
+printjson(result);
+
