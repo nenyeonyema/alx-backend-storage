@@ -1,0 +1,7 @@
+// 0-list_databases
+print("MongoDB shell version" + version());
+print("connecting to: mongodb://127.0.0.1:27017");
+var dbs = db.adminCommand('listDatabases').databases;
+dbs.forEach(function (db) {
+    print(db.name + "\t" + db.sizeOnDisk / 1024 / 1024 / 1024 + "GB");
+});
