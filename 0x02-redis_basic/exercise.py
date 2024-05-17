@@ -28,6 +28,7 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 class Cache:
+    """ Cache class """
     def __init__(self):
         """Initialize the Cache class."""
         self._redis = redis.Redis()
