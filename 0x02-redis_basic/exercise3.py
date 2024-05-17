@@ -1,29 +1,20 @@
 #!/usr/bin/env python3
-""" List """
+""" DEcorator and use of INCR commands """
 import redis
 import uuid
 from typing import Union, Callable, Optional
 import functools
 
 
-def call_history(method: Callable) -> Callable:
-    """ Define the call_history decorator """
+def count_calls(method: Callable) -> Callable:
+    """ Callable function """
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
-        """ wrapps input and stores them """
-        input_key = f"{method.__qualname__}:inputs"
-        output_key = f"{method.__qualname__}:outputs"
-
-        # Store the input arguments
-        self._redis.rpush(input_key, str(args))
-
-        # Execute the original method
-        result = method(self, *args, **kwargs)
-
-        # Store the output result
-        self._redis.rpush(output_key, str(result))
-
-        return result
+        """ increments method count """
+        # Increment the count for the method's __qualname__ in Redis
+        self._redis.incr(method.__qualname__)
+        # Call the original method
+        return method(self, *args, **kwargs)
     return wrapper
 
 class Cache:
@@ -33,7 +24,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    @call_history
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         Store the data in Redis and return the key.
@@ -94,15 +85,9 @@ class Cache:
 if __name__ == "__main__":
     cache = Cache()
 
-    s1 = cache.store("first")
-    print(s1)
-    s2 = cache.store("second")
-    print(s2)
-    s3 = cache.store("third")
-    print(s3)
+    cache.store(b"first")
+    print(cache.get(cache.store.__qualname__))  # Expected output: b'1'
 
-    inputs = cache._redis.lrange("{}:inputs".format(cache.store.__qualname__), 0, -1)
-    outputs = cache._redis.lrange("{}:outputs".format(cache.store.__qualname__), 0, -1)
-
-    print("inputs: {}".format(inputs))
-    print("outputs: {}".format(outputs))
+    cache.store(b"second")
+    cache.store(b"third")
+    print(cache.get(cache.store.__qualname__))  # Expected output: b'3'
