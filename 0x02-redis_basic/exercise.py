@@ -8,8 +8,10 @@ import functools
 
 # Define the call_history decorator
 def call_history(method: Callable) -> Callable:
+    """ Callable function """
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
+        """ wrapper function """
         input_key = f"{method.__qualname__}:inputs"
         output_key = f"{method.__qualname__}:outputs"
 
