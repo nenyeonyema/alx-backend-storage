@@ -1,21 +1,8 @@
 #!/usr/bin/env python3
-""" DEcorator and use of INCR commands """
+""" Redis Exercise """
 import redis
 import uuid
 from typing import Union, Callable, Optional
-import functools
-
-
-def count_calls(method: Callable) -> Callable:
-    """ Callable function """
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        """ increments method count """
-        # Increment the count for the method's __qualname__ in Redis
-        self._redis.incr(method.__qualname__)
-        # Call the original method
-        return method(self, *args, **kwargs)
-    return wrapper
 
 
 class Cache:
@@ -25,7 +12,6 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         Store the data in Redis and return the key.
@@ -86,9 +72,12 @@ class Cache:
 if __name__ == "__main__":
     cache = Cache()
 
-    cache.store(b"first")
-    print(cache.get(cache.store.__qualname__))  # Expected output: b'1'
+    TEST_CASES = {
+        b"foo": None,
+        123: int,
+        "bar": lambda d: d.decode("utf-8")
+    }
 
-    cache.store(b"second")
-    cache.store(b"third")
-    print(cache.get(cache.store.__qualname__))  # Expected output: b'3'
+    for value, fn in TEST_CASES.items():
+        key = cache.store(value)
+        assert cache.get(key, fn=fn) == value
